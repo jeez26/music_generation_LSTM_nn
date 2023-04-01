@@ -2,6 +2,7 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://127.0.0.1:8000",
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.3.0",
     "@fortawesome/free-solid-svg-icons": "^6.3.0",
@@ -15,6 +16,7 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.9.0",
     "react-scripts": "5.0.1",
+    "use-sound": "^4.0.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -40,15 +42,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/jeez26/music_generation_LSTM_nn.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/jeez26/music_generation_LSTM_nn/issues"
-  },
-  "homepage": "https://github.com/jeez26/music_generation_LSTM_nn#readme"
+  }
 }
