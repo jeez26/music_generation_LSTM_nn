@@ -1,4 +1,4 @@
-from python_api.backend.core.config.app_config import get_app_config, AppConfig
+from backend.core.config.app_config import get_app_config, AppConfig
 #from database.db import AsyncDb
 
 
