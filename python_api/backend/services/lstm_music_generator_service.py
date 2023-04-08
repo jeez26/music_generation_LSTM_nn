@@ -1,10 +1,12 @@
-import os
-
+from backend.core.config.app_config import AppConfig
 from backend.request_models.generate_music_request import GenerateMusicRequest
 
-from fastapi.responses import FileResponse
+import os
 import pickle
 import numpy
+import uuid
+
+from fastapi.responses import FileResponse
 from music21 import instrument, note, stream, chord
 from keras.models import Sequential
 from keras.layers import Dense
@@ -12,7 +14,6 @@ from keras.layers import Dropout
 from keras.layers import LSTM
 from keras.layers import BatchNormalization as BatchNorm
 from keras.layers import Activation
-import uuid
 from midi2audio import FluidSynth
 
 
@@ -20,34 +21,39 @@ class LSTMMusicGeneratorService:
 
     def __init__(
         self,
+        config: AppConfig,
     ):
-        ...
+        self.config = config
 
     def generate_music(self, request_data: GenerateMusicRequest) -> FileResponse:
-        music_file_response = self._generate_music_by_type(request_data.music_type)
+        music_file_response = self._generate_music_by_type(
+            music_type=request_data.music_type,
+            notes_count=request_data.notes_count,
+        )
         return FileResponse(
             path=music_file_response,
-            filename=f'generated_music_{uuid.uuid4()}.mid'
+            filename=music_file_response,
         )
 
-    def _generate_music_by_type(self, music_type: str) -> str:
+    def _generate_music_by_type(self, music_type: str, notes_count: int) -> str:
         """
         Generate a piano midi file
         Return path to generated file
         """
 
         # load the notes used to train the model
-        with open(f'neural_network_data/data/notes', 'rb') as filepath:
+        with open(self.config.notes_path, 'rb') as filepath:
             notes = pickle.load(filepath)
 
         # Get all pitch names
         pitchnames = sorted(set(item for item in notes))
+
         # Get all pitch names
         n_vocab = len(set(notes))
 
         network_input, normalized_input = self._prepare_sequences(notes, pitchnames, n_vocab)
         model = self._create_network(normalized_input, n_vocab)
-        prediction_output = self._generate_notes(model, network_input, pitchnames, n_vocab)
+        prediction_output = self._generate_notes(model, network_input, pitchnames, n_vocab, notes_count)
         return self._create_midi(prediction_output)
 
     def _prepare_sequences(self, notes, pitchnames, n_vocab) -> tuple:
@@ -95,11 +101,11 @@ class LSTMMusicGeneratorService:
         model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
 
         # Load the weights to each node
-        model.load_weights('neural_network_data/weights/weights.hdf5')
+        model.load_weights(self.config.weights_path)
 
         return model
 
-    def _generate_notes(self, model, network_input, pitchnames, n_vocab):
+    def _generate_notes(self, model, network_input, pitchnames, n_vocab, notes_count: int):
         """
         Generate notes from the neural network based on a sequence of notes
         """
@@ -112,8 +118,7 @@ class LSTMMusicGeneratorService:
         pattern = network_input[start]
         prediction_output = []
 
-        # generate 500 notes
-        notes_count = 350
+        # generate notes
         for note_index in range(notes_count):
             print(f'| STEP {note_index}/{notes_count} |')
             prediction_input = numpy.reshape(pattern, (1, len(pattern), 1))
@@ -162,16 +167,14 @@ class LSTMMusicGeneratorService:
             offset += 0.5
 
         midi_stream = stream.Stream(output_notes)
-        result_file_path = f'neural_network_data/results'
         unique_name = f'result_{uuid.uuid4()}'
-        midi_stream.write('midi', fp=f'{result_file_path}/{unique_name}.mid')
+        midi_stream.write('midi', fp=f'{self.config.results_file_path}/{unique_name}.mid')
 
-        print(os.path.abspath('fluidsynth/default_sound_font.sf2'))
         FluidSynth(
-            sound_font=os.path.abspath('fluidsynth/default_sound_font.sf2')
+            sound_font=os.path.abspath(self.config.sound_font_path)
         ).midi_to_audio(
-            f'{result_file_path}/{unique_name}.mid',
-            f'{result_file_path}/{unique_name}.wav'
+            f'{self.config.results_file_path}/{unique_name}.mid',
+            f'{self.config.results_file_path}/{unique_name}.wav'
         )
 
-        return f'{result_file_path}/{unique_name}.wav'
+        return f'{self.config.results_file_path}/{unique_name}.wav'

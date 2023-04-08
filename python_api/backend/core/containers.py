@@ -13,7 +13,10 @@ class Container(containers.DeclarativeContainer):
     # database = get_database(providers, config)
 
     # services
-    music_generator_service = get_music_generator_service(providers)
+    music_generator_service = get_music_generator_service(
+        providers,
+        config=app_config,
+    )
 
 
 container = Container()

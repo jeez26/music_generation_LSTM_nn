@@ -9,6 +9,7 @@ config = get_app_config()
 
 
 class GenerateMusicRequest(BaseModel):
+    notes_count: int
     music_type: str
 
     @validator('music_type')
