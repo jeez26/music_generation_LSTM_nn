@@ -1,5 +1,5 @@
 from backend.core.config.app_config import AppConfig
-from backend.request_models.generate_music_request import GenerateMusicRequest
+from backend.request_models.generate_music_request import GenerateMusicRequest, MusicType
 
 import os
 import pickle
@@ -54,7 +54,7 @@ class LSTMMusicGeneratorService:
         network_input, normalized_input = self._prepare_sequences(notes, pitchnames, n_vocab)
         model = self._create_network(normalized_input, n_vocab)
         prediction_output = self._generate_notes(model, network_input, pitchnames, n_vocab, notes_count)
-        return self._create_midi(prediction_output)
+        return self._create_midi(prediction_output, music_type=music_type)
 
     def _prepare_sequences(self, notes, pitchnames, n_vocab) -> tuple:
         """ Prepare the sequences used by the Neural Network """
@@ -135,7 +135,7 @@ class LSTMMusicGeneratorService:
 
         return prediction_output
 
-    def _create_midi(self, prediction_output) -> str:
+    def _create_midi(self, prediction_output, music_type: str) -> str:
         """
         convert the output from the prediction to notes and create a midi file
         from the notes
@@ -171,10 +171,23 @@ class LSTMMusicGeneratorService:
         midi_stream.write('midi', fp=f'{self.config.results_file_path}/{unique_name}.mid')
 
         FluidSynth(
-            sound_font=os.path.abspath(self.config.sound_font_path)
+            sound_font=self._get_sound_font_path_by_type(music_type=music_type)
         ).midi_to_audio(
             f'{self.config.results_file_path}/{unique_name}.mid',
             f'{self.config.results_file_path}/{unique_name}.wav'
         )
 
         return f'{self.config.results_file_path}/{unique_name}.wav'
+
+    def _get_sound_font_path_by_type(self, music_type: str) -> str:
+        match music_type:
+            case MusicType.GUITAR:
+                return os.path.abspath('fluidsynth/guitar_sound_font.sf2')
+            case MusicType.ELECTRO_PIANO:
+                return os.path.abspath('fluidsynth/electro_piano_sound_font.sf2')
+            case MusicType.CLASSIC_PIANO:
+                return os.path.abspath('fluidsynth/classic_piano_sound_font.sf2')
+            case MusicType.SUPER_GAME_BOY:
+                return os.path.abspath('fluidsynth/super_game_boy_sound_font.sf2')
+            case _:
+                raise ValueError
