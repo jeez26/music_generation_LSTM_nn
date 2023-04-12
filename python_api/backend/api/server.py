@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
-from python_api.backend.api.docs_router import docs_router
-from python_api.backend.api.routers import add_routers
+from backend.api.docs_router import docs_router
+from backend.api.routers import add_routers
 
 
 def create_api_server() -> FastAPI:

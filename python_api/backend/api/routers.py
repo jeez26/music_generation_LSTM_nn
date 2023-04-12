@@ -1,7 +1,8 @@
 from fastapi import APIRouter, FastAPI
 
-from python_api.backend.core.config.app_config import get_app_config
-from python_api.backend.core.containers import inject_module
+from backend.core.config.app_config import get_app_config
+from backend.core.containers import inject_module
+from backend.routers.generate_music.generate_music_router import generate_music_router
 
 inject_module(__name__)
 
@@ -14,6 +15,7 @@ config = get_app_config()
 
 def add_routers(app: FastAPI):
     routers = [
+        generate_music_router,
     ]
     _add_routers(app, routers)
 

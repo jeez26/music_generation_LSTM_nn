@@ -11,6 +11,8 @@ tensorflow-macos = "*"
 uvicorn = "*"
 python-dotenv = "*"
 dependency-injector = "*"
+midi2audio = "*"
+fluidsynth = "*"
 
 [dev-packages]
 

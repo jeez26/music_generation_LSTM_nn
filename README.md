@@ -1,1 +1,1 @@
-# music_generation_LSTM_nn
+# Генерация музыки при помощи LSTM нейронной сети
