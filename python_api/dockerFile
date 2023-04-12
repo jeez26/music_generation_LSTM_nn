@@ -1,0 +1,10 @@
+FROM python:3.10-slim
+
+WORKDIR /backend
+COPY . /backend
+
+RUN python -m pip install --upgrade pip
+RUN pip install pipenv && pipenv install --deploy --system
+
+CMD uvicorn main:app_backend --host 0.0.0.0 --port "$UVICO
+RN_SERVER_PORT" --root-path "$API_PREFIX" --workers "$WORKERS_COUNT"

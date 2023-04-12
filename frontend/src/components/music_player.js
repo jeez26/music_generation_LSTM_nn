@@ -1,16 +1,18 @@
 import useSound from "use-sound";
-import boopSfx from '../screens/music.mp3';
 import {useEffect, useState} from "react";
 
-export const MusicPlayer = () => {
+export const MusicPlayer = ({music}) => {
     const [is_playing, setPlaying] = useState(false);
     const [currTime, setCurrTime] = useState({
         min: "",
         sec: "",
     });
     const [seconds, setSeconds] = useState();
+    const [play, {pause, duration, sound}] = useSound(music);
 
-    const [play, {pause, duration, sound}] = useSound(boopSfx);
+    useEffect(()=> {
+        console.log(music)
+    }, [music])
 
     useEffect(() => {
         const sec = duration / 1000;
@@ -20,7 +22,6 @@ export const MusicPlayer = () => {
             min: min,
             sec: secRemain
         };
-        console.log(time);
     }, [currTime, duration])
 
     useEffect(() => {

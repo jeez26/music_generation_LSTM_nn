@@ -21,7 +21,7 @@ class AppConfig(BaseModel):
         music_types: list = ['piano', 'guitar', 'lol']
         return AppConfig(
             root_path=data_env.get('APP_ROOT_PATH', ''),
-            uvicorn_server_port=data_env.get('UVICORN_SERVER_PORT', 3000),
+            uvicorn_server_port=data_env.get('UVICORN_SERVER_PORT', 4000),
             developer_mode=data_env.get('DEVELOPER_MODE') == 'true',
             routers_root_path=data_env.get('ROUTERS_ROOT_PATH', ''),
             music_types=music_types,
